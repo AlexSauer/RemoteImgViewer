@@ -2,9 +2,13 @@ import io
 import numpy as np 
 import base64
 import matplotlib.pyplot as plt
+# from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+import matplotlib
+matplotlib.use('Agg')
 from flask import Flask, render_template, url_for, request, session
 
 app = Flask(__name__)
+app.secret_key = '52065471885156399091'
 
 @app.route('/')
 def index():
@@ -18,7 +22,7 @@ def viewImage():
     else:
         raise ValueError("api/viewImage only accepts POST requests")
 
-    return 'API successful response!'
+    return get_img()
 
 def get_img():
     fig = plt.Figure(figsize=(5,5))

@@ -2,7 +2,6 @@
 <html>
     <head>
         <title>Image Viewer</title>
-        <script src="{{ url_for('static', filename='script.js') }}"></script>
     </head>
     <body>
         <div>
@@ -14,10 +13,13 @@
             <button id="loadButton">Load</button>
         </div>
         <div id="imageViewer">
-            <!-- <img id="cimg"> -->
-            <label for="sliceID">Select slice:</label>
-            <input id='sliceID' type="number">
+            <img id="myImage" src="/static/apzmx.png">
+            <br>
+            <!-- <label for="sliceID">Select slice:</label> -->
+            <button id="prevButton">Previous</button>
+            <button id="nextButton">Next</button>
         </div>
 
+        <script src="{{ url_for('static', filename='script.js') }}"></script>
     </body>
 </html>
