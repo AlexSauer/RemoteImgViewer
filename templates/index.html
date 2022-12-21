@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Image Viewer</title>
+        <script src="{{ url_for('static', filename='script.js') }}"></script>
+    </head>
+    <body>
+        <div>
+            <h1>Image Viewer</h1>
+        </div>
+        <div id="inputpara">
+            <label for="filePathInput">Give a file path: </label>
+            <input type="text", id='filePathInput', name="filePath", value="/Users/alexandersauer/Desktop/to_annotate/dataset21_normalise_intensity.tif">
+            <button id="loadButton">Load</button>
+        </div>
+        <div id="imageViewer">
+            <!-- <img id="cimg"> -->
+            <label for="sliceID">Select slice:</label>
+            <input id='sliceID' type="number">
+        </div>
+
+    </body>
+</html>
