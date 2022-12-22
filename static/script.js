@@ -24,7 +24,7 @@ function requestImage(imgPath, cur_index, cur_channel) {
 
 window.onload = function() {
     let CUR_INDEX = 0;
-    let CUR_CHANNEL = 2;
+    let CUR_CHANNEL = document.getElementById('channelSelect').value;
     let CUR_PATH = ''
     const loadBotton = document.getElementById('loadButton');
     loadBotton.onclick = () => {
@@ -35,7 +35,7 @@ window.onload = function() {
 
     const prevButton = document.getElementById('prevButton');
     const nextButton = document.getElementById('nextButton');
-    const channelInput = document.getElementById('channelSelection');
+    const channelInput = document.getElementById('channelSelect');
 
     prevButton.onclick = () => {
         CUR_INDEX = Math.max(0, CUR_INDEX -1);
@@ -46,6 +46,10 @@ window.onload = function() {
         requestImage(CUR_PATH, CUR_INDEX, CUR_CHANNEL)
     }
 
+    channelInput.onchange = () => {
+        CUR_CHANNEL = channelInput.value;
+        requestImage(CUR_PATH, CUR_INDEX, CUR_CHANNEL);
+    }
 
 
     

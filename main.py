@@ -22,7 +22,7 @@ def requestImage():
         filePath = request.form['filePath']  
         cur_index =  int(request.form['index'])
         cur_channel = int(request.form['channel'])
-        print(filePath, cur_index)
+        print(filePath, cur_index, cur_channel)
     else:
         raise ValueError("api/requestImage only accepts POST requests")
 
@@ -33,12 +33,13 @@ def returnImage(filePath, cur_index, channel):
     if filePath not in global_storage.keys():
         img = tifffile.imread(filePath)
         global_storage[filePath] = {'raw': img}
-    if cur_index not in global_storage[filePath].keys():
+    cur_key = f'{channel}_{cur_index}'
+    if cur_key not in global_storage[filePath].keys():
         new_slice = generateBase64(global_storage[filePath]['raw'], cur_index, channel)
-        global_storage[filePath][cur_index] = new_slice
+        global_storage[filePath][cur_key] = new_slice
         return new_slice
     else:
-        return global_storage[filePath][cur_index]
+        return global_storage[filePath][cur_key]
 
 
 def generateBase64(img, index, channel):

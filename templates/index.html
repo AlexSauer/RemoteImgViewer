@@ -13,13 +13,20 @@
             <button id="loadButton">Load</button>
         </div>
         <div id="imageViewer">
-            <img id="myImage" src="/static/apzmx.png">
+            <img id="myImage" src="">
             <br>
             <button id="prevButton">Previous</button>
             <button id="nextButton">Next</button>
             <br>
-            <label for="sliceID">Select channel:</label>
-            <input id="channelSelection" type="number" value="0">
+            <!-- <label for="sliceID">Select channel:</label>
+            <input id="channelSelection" type="number" value="2"> -->
+
+            <label for="channelSelect">Choose a channel:</label>
+            <select name="channel" id="channelSelect">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2" selected>2</option>
+            </select>
         </div>
 
         <script src="{{ url_for('static', filename='script.js') }}"></script>
