@@ -15,9 +15,11 @@
         <div id="imageViewer">
             <img id="myImage" src="/static/apzmx.png">
             <br>
-            <!-- <label for="sliceID">Select slice:</label> -->
             <button id="prevButton">Previous</button>
             <button id="nextButton">Next</button>
+            <br>
+            <label for="sliceID">Select channel:</label>
+            <input id="channelSelection" type="number" value="0">
         </div>
 
         <script src="{{ url_for('static', filename='script.js') }}"></script>
