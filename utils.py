@@ -1,10 +1,17 @@
 import io
+import os
+import sys
 import base64
 import matplotlib.pyplot as plt
 import matplotlib
+from skimage.transform import resize
 matplotlib.use('Agg')
 
 def generateBase64Img(img, index, channel):
+    """
+    Generate a plot of the <index> and <channel> of <img>.
+    Transform the plot into base64 and return the final string
+    """
     fig = plt.Figure(figsize=(5,5))
     plt.imshow(img[index, channel])
 
@@ -16,7 +23,19 @@ def generateBase64Img(img, index, channel):
 
 
 def local2serverPath(path):
-    return path
+    # Locally (when working on my Mac) I don't have to modify the path
+    if sys.platform == 'darwin':
+        return path
+    # If I am on the cluster, I want the replace the mounted paths with the actual cluster paths
+    else:
+        if path.startswith('/Users/alexandersauer/bmrc_mnt_2/'):
+            path = path.replace('/Users/alexandersauer/bmrc_mnt_2/', '/well/rittscher/projects/PanVision/')
+        elif path.startswith('/Users/alexandersauer/mnt_rescomp/'):
+            path = path.replace('/Users/alexandersauer/mnt_rescomp/', f'/well/rittscher/users/{os.getlogin()}/')
+        return path
 
 def resizeImg(img):
+    """
+    To speed up generating the plots, downsample the whole image
+    """
     return img

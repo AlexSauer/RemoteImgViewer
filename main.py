@@ -12,6 +12,9 @@ def index():
 
 @app.route('/api/requestImage/', methods=['POST'])
 def requestImage():
+    """
+    API that accepts the filepath, index and channel and returns a resulting base64 string of the image.
+    """
     if request.method == 'POST':
         filePath = local2serverPath(request.form['filePath'])
         cur_index =  int(request.form['index'])
@@ -24,6 +27,10 @@ def requestImage():
 
 
 def returnImage(filePath, cur_index, channel):
+    """
+    Function that reads in <filePath> and returns the base64 string of the image of <cur_index> and <channel>.
+    Also performs some caching and stores the results of previously computed images. 
+    """
     if filePath not in global_storage.keys():
         img = resizeImg(tifffile.imread(filePath))
         global_storage[filePath] = {'raw': img}

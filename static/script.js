@@ -26,16 +26,17 @@ window.onload = function() {
     let CUR_INDEX = 0;
     let CUR_CHANNEL = document.getElementById('channelSelect').value;
     let CUR_PATH = ''
+
     const loadBotton = document.getElementById('loadButton');
+    const prevButton = document.getElementById('prevButton');
+    const nextButton = document.getElementById('nextButton');
+    const channelInput = document.getElementById('channelSelect');
+
     loadBotton.onclick = () => {
         CUR_INDEX = 0;
         CUR_PATH = document.getElementById('filePathInput').value;
         requestImage(CUR_PATH, CUR_INDEX, CUR_CHANNEL);
     }
-
-    const prevButton = document.getElementById('prevButton');
-    const nextButton = document.getElementById('nextButton');
-    const channelInput = document.getElementById('channelSelect');
 
     prevButton.onclick = () => {
         CUR_INDEX = Math.max(0, CUR_INDEX -1);
@@ -50,8 +51,4 @@ window.onload = function() {
         CUR_CHANNEL = channelInput.value;
         requestImage(CUR_PATH, CUR_INDEX, CUR_CHANNEL);
     }
-
-
-    
-
 }
