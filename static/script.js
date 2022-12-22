@@ -17,7 +17,7 @@ function loadImage(imgPath) {
             }
         }
     }
-    httpRequest.open("POST", "api/viewImage");
+    httpRequest.open("POST", "api/setImage/");
     httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     httpRequest.send(`filePath=${encodeURIComponent(imgPath)}`); 
 }
@@ -57,10 +57,10 @@ window.onload = function() {
     const nextButton = document.getElementById('nextButton');
 
     prevButton.onclick = () => {
-        viewImage('api/prevImage')
+        viewImage('api/prevImage/')
     }
     nextButton.onclick = () => {
-        viewImage('api/nextImage')
+        viewImage('api/nextImage/')
     }
     
 
