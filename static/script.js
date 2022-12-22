@@ -1,32 +1,69 @@
-function requestImage(imgPath, cur_index, cur_channel) {
-    httpRequest = new XMLHttpRequest();
+var IMAGES = {}
 
-    if (!httpRequest) {
-        alert("Building Request failed!");
-        return false;
-    }
+async function requestImage(imgPath, cur_index, cur_channel) {
+    // Makes a request to api/requestImage to get the base64 encoded image
+    try {
+        const response = await fetch('api/requestImage/',
+                                     {
+                                      method: 'POST',
+                                      headers: {
+                                                'Content-Type': 'application/x-www-form-urlencoded',
+                                               },
+                                      body: `filePath=${encodeURIComponent(imgPath)}&index=${cur_index}&channel=${cur_channel}`
+                                     });
+        if (!response.ok) {
+          throw new Error(`HTTP error: ${response.status}`);
+        }
+        // const data = await response.json();
+        const data = await response.text();
+        // console.log(data);
+        return data;
+      }
+      catch (error) {
+        console.error(`Could not get Image: ${error}`);
+      }
+}
 
-    httpRequest.onreadystatechange = () => {
-        if (httpRequest.readyState === XMLHttpRequest.DONE) {
-            if (httpRequest.status === 200) {
-                let curImg = document.getElementById('myImage');
-                let response = httpRequest.responseText;
-                curImg.src = `data:imge/jpg;base64, ${response}`;
-            } else {
-                alert("Some problem with request!")
-            }
+
+function viewImage(path, index, channel){
+    // Changes the src of #myImage to the base64 code of the specified images
+    // Saves all previously seen image in the IMAGES object
+    // This object has the structure {path1: {channel1_index1: base64, ....},
+    //                                ....,
+    //                                {pathN: {channel1_index1: base64, ....}}
+    let curImg = document.getElementById('myImage');
+    let key = `${channel}_${index}`
+    if (!(path in IMAGES)) {
+        // The images path hasn't been seen before
+        let imgPromise = requestImage(path, index, channel);
+        imgPromise.then( (base64img) => {
+            IMAGES[path] = {key : base64img};
+            curImg.src = `data:imge/jpg;base64, ${base64img}`; 
+        }).catch( (error) => {
+            console.log(`Failed with ${error}`);
+        })
+    } else {
+        // The image path has been seen but not that slice/channel
+        if (!(key in IMAGES[path])) {
+            let imgPromise = requestImage(path, index, channel);
+            imgPromise.then( (base64img) => {
+                IMAGES[path][key] = base64img;
+                curImg.src = `data:imge/jpg;base64, ${base64img}`; 
+            }).catch( (error) => {
+                console.log(`Failed with ${error}`);
+            })
+        }  else {
+        // We have already seen exactly the same img&slice&channel
+        curImg.src = `data:imge/jpg;base64, ${IMAGES[path][key]}`; 
         }
     }
-    httpRequest.open("POST", "api/requestImage/");
-    httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    httpRequest.send(`filePath=${encodeURIComponent(imgPath)}&index=${cur_index}&channel=${cur_channel}`); 
 }
 
 window.onload = function() {
     let CUR_INDEX = 0;
     let CUR_CHANNEL = document.getElementById('channelSelect').value;
     let CUR_PATH = ''
-
+    
     const loadBotton = document.getElementById('loadButton');
     const prevButton = document.getElementById('prevButton');
     const nextButton = document.getElementById('nextButton');
@@ -35,20 +72,20 @@ window.onload = function() {
     loadBotton.onclick = () => {
         CUR_INDEX = 0;
         CUR_PATH = document.getElementById('filePathInput').value;
-        requestImage(CUR_PATH, CUR_INDEX, CUR_CHANNEL);
+        viewImage(CUR_PATH, CUR_INDEX, CUR_CHANNEL);
     }
 
     prevButton.onclick = () => {
         CUR_INDEX = Math.max(0, CUR_INDEX -1);
-        requestImage(CUR_PATH, CUR_INDEX, CUR_CHANNEL);
+        viewImage(CUR_PATH, CUR_INDEX, CUR_CHANNEL);
     }
     nextButton.onclick = () => {
         CUR_INDEX = CUR_INDEX+1;
-        requestImage(CUR_PATH, CUR_INDEX, CUR_CHANNEL)
+        viewImage(CUR_PATH, CUR_INDEX, CUR_CHANNEL)
     }
 
     channelInput.onchange = () => {
         CUR_CHANNEL = channelInput.value;
-        requestImage(CUR_PATH, CUR_INDEX, CUR_CHANNEL);
+        viewImage(CUR_PATH, CUR_INDEX, CUR_CHANNEL);
     }
 }
