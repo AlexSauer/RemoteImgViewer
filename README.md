@@ -3,7 +3,7 @@
 -[ ] Transform local to cluster paths
 -[ ] Resize the image so that generating the plots is faster
 -[x] Cache the images in the browser instead of the server?
--[ ] Cache the next images as well to allow for smoother viewing.
+-[x] Cache the next images as well to allow for smoother viewing.
 -[ ] Allow to display and select multiple images at the same time.
 -[ ] Only show channel html element if the image actually has a channel dimension.
 -[x] Rewrite the XMLHttpRequest with the new promise based fetch API
