@@ -55,4 +55,4 @@ def returnImage(filePath, cur_index, channel):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=20560)
