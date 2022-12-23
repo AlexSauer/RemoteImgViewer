@@ -1,10 +1,11 @@
 import tifffile
+from collections import namedtuple
 from flask import Flask, render_template, url_for, request
 from utils import generateBase64Img, local2serverPath, resizeImg
 
 global_storage = {}
 app = Flask(__name__)
-
+Response = namedtuple('Response', 'file base64img n_slices n_channels')
 
 @app.route('/')
 def index():
@@ -13,7 +14,7 @@ def index():
 @app.route('/api/requestImage/', methods=['POST'])
 def requestImage():
     """
-    API that accepts the filepath, index and channel and returns a resulting base64 string of the image.
+    API that accepts the filepath, index and channel and returns a Response named tuple 
     """
     if request.method == 'POST':
         filePath = local2serverPath(request.form['filePath'])
@@ -23,7 +24,7 @@ def requestImage():
     else:
         raise ValueError("api/requestImage only accepts POST requests")
 
-    return returnImage(filePath, cur_index, cur_channel)
+    return returnImage(filePath, cur_index, cur_channel)._asdict()
 
 
 def returnImage(filePath, cur_index, channel):
@@ -45,12 +46,12 @@ def returnImage(filePath, cur_index, channel):
     n_slices = img_shape[0]
     n_channels = img_shape[1] if len(img_shape) == 4 else 0
 
-    return {
-        'file' : filePath,
-        'base64img' : new_slice, 
-        'n_slices' : n_slices,
-        'n_channels' : n_channels
-    }
+    return Response(
+        file = filePath,
+        base64img = new_slice, 
+        n_slices = n_slices,
+        n_channels = n_channels
+    ) 
 
 
 if __name__ == '__main__':
