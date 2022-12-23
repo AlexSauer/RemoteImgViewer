@@ -1,3 +1,6 @@
+var CUR_INDEX = 0;
+var CUR_INDEX_MAX = 0;
+var CUR_PATH = ''
 var IMAGES = {}
 
 async function requestImage(imgPath, cur_index, cur_channel) {
@@ -30,13 +33,14 @@ function viewImage(base64img) {
     curImg.src = `data:imge/jpg;base64, ${base64img}`; 
 }
 
-function updateIndexDisplay(index, path) {
+function updateIndexDisplay(index, max_index) {
+    // Update the current index/max_index
     let displayIndex = document.getElementById('indexDisplay');
-    let max_index = IMAGES[path]['n_slices'];
     displayIndex.textContent = `Current index: ${index}/${max_index}`;
 }
 
 function updateChannel(path) {
+    // Only asks for channel if there are different channels
     let n_channels = IMAGES[path]['n_channels'];
     let channelSelect = document.getElementById('channelSelectDiv');
     if (n_channels == 0){
@@ -49,10 +53,11 @@ function updateChannel(path) {
 
 
 async function loadImage(path, index, channel){
-    // Saves all previously seen image in the IMAGES object
-    // This object has the structure {path1: {channel1_index1: base64, ....},
-    //                                ....,
-    //                                {pathN: {channel1_index1: base64, ....}}
+    /* Saves all previously seen image in the IMAGES object
+       This object has the structure {path1: {channel1_index1: base64, ....},
+                                      ....,
+                                      {pathN: {channel1_index1: base64, ....}}
+    */
     let key = `${channel}_${index}`
     if (!(path in IMAGES)) {
         // The images path hasn't been seen before
@@ -61,6 +66,7 @@ async function loadImage(path, index, channel){
             'n_slices' : response['n_slices'],
             'n_channels' : response['n_chnanels']
         };
+        CUR_INDEX_MAX = response['n_slices'] - 1;
         new_entry[key] = response['base64img'];
         IMAGES[path] = new_entry;
     } else if (!(key in IMAGES[path])) {
@@ -77,18 +83,18 @@ function viewAndCacheImage(path, index, channel){
     // Display the current image and update index and channels
     curImagePromise
     .then((imgbase64) => {
-        updateIndexDisplay(index, path);
+        updateIndexDisplay(index, CUR_INDEX_MAX);
         updateChannel(path);
         viewImage(imgbase64);
     })
-    .then(() => loadImage(path, index+1, channel)) // Cache next index
+    .then(() => {if (index + 1 < CUR_INDEX_MAX - 1) {
+        loadImage(path, index+1, channel)
+    }}) // Cache next index
     .catch( (error) => console.log(`Loading failed ${error}`));
 }
 
 window.onload = function() {
-    let CUR_INDEX = 0;
-    let CUR_CHANNEL = document.getElementById('channelSelect').value;
-    let CUR_PATH = ''
+    var CUR_CHANNEL = document.getElementById('channelSelect').value;
     
     const loadBotton = document.getElementById('loadButton');
     const prevButton = document.getElementById('prevButton');
@@ -97,6 +103,7 @@ window.onload = function() {
 
     loadBotton.onclick = () => {
         CUR_INDEX = 0;
+        CUR_INDEX_MAX = 0;
         CUR_PATH = document.getElementById('filePathInput').value;
         viewAndCacheImage(CUR_PATH, CUR_INDEX, CUR_CHANNEL);
     }
@@ -106,7 +113,7 @@ window.onload = function() {
         viewAndCacheImage(CUR_PATH, CUR_INDEX, CUR_CHANNEL);
     }
     nextButton.onclick = () => {
-        CUR_INDEX = CUR_INDEX+1;
+        CUR_INDEX = Math.min(CUR_INDEX+1, CUR_INDEX_MAX);
         viewAndCacheImage(CUR_PATH, CUR_INDEX, CUR_CHANNEL)
     }
 

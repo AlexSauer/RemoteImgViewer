@@ -35,26 +35,22 @@ def returnImage(filePath, cur_index, channel):
     if filePath not in global_storage.keys():
         img = resizeImg(tifffile.imread(filePath))
         assert len(img.shape) in [3,4], f'Unexpected image shape: {img.shape}'
-        global_storage[filePath] = {'raw': img}
+        global_storage[filePath] = img
     
     # Generate the base64 image for that combination of index/channel if it hasn't been requested before
-    cur_key = f'{channel}_{cur_index}'
-    if cur_key not in global_storage[filePath].keys():
-        new_slice = generateBase64Img(global_storage[filePath]['raw'], cur_index, channel)
-        global_storage[filePath][cur_key] = new_slice
+    new_slice = generateBase64Img(global_storage[filePath], cur_index, channel)
 
     # Prepare response
-    img_shape = global_storage[filePath]['raw'].shape
+    img_shape = global_storage[filePath].shape
     n_slices = img_shape[0]
     n_channels = img_shape[1] if len(img_shape) == 4 else 0
 
     return {
         'file' : filePath,
-        'base64img' : global_storage[filePath][cur_key],
+        'base64img' : new_slice, 
         'n_slices' : n_slices,
         'n_channels' : n_channels
     }
-
 
 
 if __name__ == '__main__':
