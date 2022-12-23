@@ -4,7 +4,10 @@ var CUR_PATH = ''
 var IMAGES = {}
 
 async function requestImage(imgPath, cur_index, cur_channel) {
-    // Makes a request to api/requestImage to get the base64 encoded image
+    /* 
+    Makes a request to api/requestImage to get the base64 encoded image, the number of channels
+    and the number of maximum slices.
+    */
     console.log(`Requesting ${imgPath}, ${cur_channel}, ${cur_index}`)
     try {
         const response = await fetch('api/requestImage/',
@@ -19,7 +22,6 @@ async function requestImage(imgPath, cur_index, cur_channel) {
           throw new Error(`HTTP error: ${response.status}`);
         }
         const data = await response.json();
-        // const data = await response.text();
         return data;
       }
       catch (error) {
@@ -48,9 +50,7 @@ function updateChannel(path) {
     } else {
         channelSelect.style.display = 'block';
     }
-
 }
-
 
 async function loadImage(path, index, channel){
     /* Saves all previously seen image in the IMAGES object
@@ -95,7 +95,6 @@ function viewAndCacheImage(path, index, channel){
 
 window.onload = function() {
     var CUR_CHANNEL = document.getElementById('channelSelect').value;
-    
     const loadBotton = document.getElementById('loadButton');
     const prevButton = document.getElementById('prevButton');
     const nextButton = document.getElementById('nextButton');
@@ -104,10 +103,10 @@ window.onload = function() {
     loadBotton.onclick = () => {
         CUR_INDEX = 0;
         CUR_INDEX_MAX = 0;
+        CUR_CHANNEL = 2;
         CUR_PATH = document.getElementById('filePathInput').value;
         viewAndCacheImage(CUR_PATH, CUR_INDEX, CUR_CHANNEL);
     }
-
     prevButton.onclick = () => {
         CUR_INDEX = Math.max(0, CUR_INDEX -1);
         viewAndCacheImage(CUR_PATH, CUR_INDEX, CUR_CHANNEL);
@@ -116,7 +115,6 @@ window.onload = function() {
         CUR_INDEX = Math.min(CUR_INDEX+1, CUR_INDEX_MAX);
         viewAndCacheImage(CUR_PATH, CUR_INDEX, CUR_CHANNEL)
     }
-
     channelInput.onchange = () => {
         CUR_CHANNEL = channelInput.value;
         viewAndCacheImage(CUR_PATH, CUR_INDEX, CUR_CHANNEL);
