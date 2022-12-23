@@ -2,6 +2,7 @@ var IMAGES = {}
 
 async function requestImage(imgPath, cur_index, cur_channel) {
     // Makes a request to api/requestImage to get the base64 encoded image
+    console.log(`Requesting ${imgPath}, ${cur_channel}, ${cur_index}`)
     try {
         const response = await fetch('api/requestImage/',
                                      {
@@ -14,8 +15,8 @@ async function requestImage(imgPath, cur_index, cur_channel) {
         if (!response.ok) {
           throw new Error(`HTTP error: ${response.status}`);
         }
-        // const data = await response.json();
-        const data = await response.text();
+        const data = await response.json();
+        // const data = await response.text();
         return data;
       }
       catch (error) {
@@ -29,6 +30,24 @@ function viewImage(base64img) {
     curImg.src = `data:imge/jpg;base64, ${base64img}`; 
 }
 
+function updateIndexDisplay(index, path) {
+    let displayIndex = document.getElementById('indexDisplay');
+    let max_index = IMAGES[path]['n_slices'];
+    displayIndex.textContent = `Current index: ${index}/${max_index}`;
+}
+
+function updateChannel(path) {
+    let n_channels = IMAGES[path]['n_channels'];
+    let channelSelect = document.getElementById('channelSelectDiv');
+    if (n_channels == 0){
+        channelSelect.style.display = 'none';
+    } else {
+        channelSelect.style.display = 'block';
+    }
+
+}
+
+
 async function loadImage(path, index, channel){
     // Saves all previously seen image in the IMAGES object
     // This object has the structure {path1: {channel1_index1: base64, ....},
@@ -37,14 +56,17 @@ async function loadImage(path, index, channel){
     let key = `${channel}_${index}`
     if (!(path in IMAGES)) {
         // The images path hasn't been seen before
-        let base64img = await requestImage(path, index, channel);
-        let new_entry = {};
-        new_entry[key] = base64img;
+        let response = await requestImage(path, index, channel);
+        let new_entry = {
+            'n_slices' : response['n_slices'],
+            'n_channels' : response['n_chnanels']
+        };
+        new_entry[key] = response['base64img'];
         IMAGES[path] = new_entry;
     } else if (!(key in IMAGES[path])) {
         // The image path has been seen but not that slice/channel
-        let base64img = await requestImage(path, index, channel);
-        IMAGES[path][key] = base64img;
+        let response = await requestImage(path, index, channel);
+        IMAGES[path][key] = response['base64img'];
     }
     // If the image was already cached or is now loaded, return it
     return IMAGES[path][key]; 
@@ -52,10 +74,14 @@ async function loadImage(path, index, channel){
 
 function viewAndCacheImage(path, index, channel){
     let curImagePromise = loadImage(path, index, channel);
-    curImagePromise.then((imgbase64) => {
+    // Display the current image and update index and channels
+    curImagePromise
+    .then((imgbase64) => {
+        updateIndexDisplay(index, path);
+        updateChannel(path);
         viewImage(imgbase64);
     })
-    .then(() =>  loadImage(path, index+1, channel))
+    .then(() => loadImage(path, index+1, channel)) // Cache next index
     .catch( (error) => console.log(`Loading failed ${error}`));
 }
 

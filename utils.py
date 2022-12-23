@@ -13,12 +13,17 @@ def generateBase64Img(img, index, channel):
     Transform the plot into base64 and return the final string
     """
     fig = plt.Figure(figsize=(5,5))
-    plt.imshow(img[index, channel])
+    if len(img.shape) == 4:
+        plt.imshow(img[index, channel])
+    elif len(img.shape) == 3:
+        plt.imshow(img[index])
+    else:
+        raise ValueError(f'Unexpected shape of img: {img.shape}')
 
     my_stringIObytes = io.BytesIO()
     plt.savefig(my_stringIObytes, format='jpg')
     my_stringIObytes.seek(0)
-    my_base64_jpgData = base64.b64encode(my_stringIObytes.read())
+    my_base64_jpgData = base64.b64encode(my_stringIObytes.read()).decode('utf-8')
     return my_base64_jpgData
 
 

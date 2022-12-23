@@ -31,16 +31,29 @@ def returnImage(filePath, cur_index, channel):
     Function that reads in <filePath> and returns the base64 string of the image of <cur_index> and <channel>.
     Also performs some caching and stores the results of previously computed images. 
     """
+    # Load in the file if it hasn't been requested before
     if filePath not in global_storage.keys():
         img = resizeImg(tifffile.imread(filePath))
+        assert len(img.shape) in [3,4], f'Unexpected image shape: {img.shape}'
         global_storage[filePath] = {'raw': img}
+    
+    # Generate the base64 image for that combination of index/channel if it hasn't been requested before
     cur_key = f'{channel}_{cur_index}'
     if cur_key not in global_storage[filePath].keys():
         new_slice = generateBase64Img(global_storage[filePath]['raw'], cur_index, channel)
         global_storage[filePath][cur_key] = new_slice
-        return new_slice
-    else:
-        return global_storage[filePath][cur_key]
+
+    # Prepare response
+    img_shape = global_storage[filePath]['raw'].shape
+    n_slices = img_shape[0]
+    n_channels = img_shape[1] if len(img_shape) == 4 else 0
+
+    return {
+        'file' : filePath,
+        'base64img' : global_storage[filePath][cur_key],
+        'n_slices' : n_slices,
+        'n_channels' : n_channels
+    }
 
 
 
